@@ -62,3 +62,8 @@ class Notification(db.Model, SerializerMixin):
             raise ValueError('No message added for notification, please add one')
         else:
             return message
+        
+class QueueLine(db.Model, SerializerMixin):
+    __tablename__ = 'queue'
+
+    id = Column(Integer, primary_key=True)
