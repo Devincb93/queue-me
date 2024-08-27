@@ -1,12 +1,14 @@
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship, validates
-import bcrypt
+import bcrypt 
 from config import db
 from datetime import datetime
 
 class Employee(db.Model, SerializerMixin):
     __tablename__ = 'employees'
+
+    
 
     id = Column(Integer, primary_key=True)
     employee_login = Column(String, nullable=False)
@@ -27,13 +29,16 @@ class Employee(db.Model, SerializerMixin):
             return password
         
 class Customer(db.Model, SerializerMixin):
-    __tablename__='customers'
+    __tablename__ = 'customers'
 
     id = Column(Integer, primary_key=True)
     first_last_name = Column(String, nullable=False)
-    phone_number = Column(Integer, min=10, max=10)
+    phone_number = Column(Integer)
     email = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
+
+    
+    customer_notifications = relationship('CustomerNotification', back_populates='customer')
 
     @validates('first_last_name')
     def validate_names(self, key, first_lase_name):
@@ -49,12 +54,15 @@ class Customer(db.Model, SerializerMixin):
             return phone_number
         
 class Notification(db.Model, SerializerMixin):
-    __tablename__='notifications'
+    __tablename__ = 'notifications'
 
     id = Column(Integer, primary_key=True)
     message = Column(String, nullable=False)
     status = Column(String, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
+
+    
+    customer_notifications = relationship('CustomerNotification', back_populates='notification')
 
     @validates('message')
     def validate_message(self, key, message):
@@ -67,3 +75,21 @@ class QueueLine(db.Model, SerializerMixin):
     __tablename__ = 'queue'
 
     id = Column(Integer, primary_key=True)
+    queue_position = Column(Integer, nullable=False)
+    status = Column(String)
+    customer_id = Column(Integer, ForeignKey('customers.id'))
+
+
+
+class CustomerNotification(db.Model, SerializerMixin):
+    __tablename__ = 'customer_notifications'
+
+    serialize_rules=('-customer.customer_notifications', '-notification.customer_notifications')
+
+    id = Column(Integer, primary_key=True)
+    customer_id = Column(Integer, ForeignKey('customers.id'), nullable=False)
+    notification_id = Column(Integer, ForeignKey('notifications.id'), nullable=False)
+    timestamp = Column(DateTime, default=datetime.utcnow)  # Additional attribute example
+
+    customer = relationship('Customer', back_populates='customer_notifications')
+    notification = relationship('Notification', back_populates='customer_notifications')

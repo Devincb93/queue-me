@@ -5,10 +5,10 @@ function Login() {
 
     const navigate = useNavigate()
     return (
-        <div className='bg-blue-500'>
+        <div className=''>
             <input placeholder='Employee Login'></input>
             <input placeholder='Password'></input>
-            <button onClick={() => navigate('/customer_form')}>Login</button>
+            <button className='' onClick={() => navigate('/customer_form')}>Login</button>
         </div>
     )
 }

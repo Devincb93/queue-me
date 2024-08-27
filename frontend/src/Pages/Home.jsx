@@ -8,8 +8,8 @@ function Home() {
 
 
     return (
-        <div className='bg-blue-500'>
-            <div className='bg-blue-500'>
+        <div className=''>
+            <div className=''>
             <Login/>
             </div>
         </div>

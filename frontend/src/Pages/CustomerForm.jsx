@@ -7,11 +7,10 @@ function CustomerForm() {
     const navigate = useNavigate()
     return (
         <div>
-        <input placeholder='First and Last name'></input>
-        <button>Add to Q</button>
-        <button onClick={() => navigate('/queue')}>Edit the Q</button>
+        <input className='rounded-lg bg-pink-50 shadow-2xl' placeholder='First and Last name'></input>
+        <button className='bg-pink-400 text-white rounded-lg w-24 shadow-black hover:bg-pink-600'>Add to Q</button>
+        <button className='bg-pink-400 text-white rounded-lg w-24 hover:bg-pink-600' onClick={() => navigate('/queue')}>Edit the Q</button>
         <div>
-            <h1>DressingRooms</h1>
             <DressingRooms/>
         </div>
         </div>

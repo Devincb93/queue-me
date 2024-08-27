@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'edikted';
+  src: url('./public/kleptocracy titling bd.otf') format('opentype');
+    
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+body {
+  background: #f3b5d4;
+  font-family: 'edikted','Edu VIC WA NT Beginner', sans-serif
+ 
+  
+}
+
 
 /* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
