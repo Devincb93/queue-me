@@ -19,10 +19,8 @@ class GetCustomers(Resource):
     def get(self):
         customers = Customer.query.all()
         customers_dict_list = [customer.to_dict() for customer in customers]
-        return make_response(
-            customers_dict_list,
-              200
-        )
+        return customers_dict_list, 200
+        
     
 api.add_resource(Home,'/')
 api.add_resource(GetCustomers, '/customers')

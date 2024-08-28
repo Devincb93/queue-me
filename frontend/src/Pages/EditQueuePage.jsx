@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 
 function EditQueuePage() {
-    const [allcustomers, setAllCustomers] = useState([])
+    const [allCustomers, setAllCustomers] = useState([])
 
     useEffect(() => {
         fetch('/customers')
@@ -21,7 +21,7 @@ function EditQueuePage() {
             });
     }, []);
 
-    console.log("customers should be here", allcustomers)
+    console.log("customers should be here", allCustomers)
 
     const navigate = useNavigate()
     return(
@@ -30,7 +30,7 @@ function EditQueuePage() {
             <ul>
                 <div>
                     <div>
-                        {allcustomers.map(customer => (
+                        {allCustomers.map(customer => (
                             <div key={customer.id}>
                                 <h1>{customer.first_last_name}</h1>
                             </div>

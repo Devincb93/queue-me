@@ -39,6 +39,7 @@ class Customer(db.Model, SerializerMixin):
 
     
     customer_notifications = relationship('CustomerNotification', back_populates='customer')
+    queues = relationship('QueueLine', back_populates='customers')
 
     @validates('first_last_name')
     def validate_names(self, key, first_lase_name):
@@ -63,7 +64,7 @@ class Notification(db.Model, SerializerMixin):
 
     
     customer_notifications = relationship('CustomerNotification', back_populates='notification')
-
+   
     @validates('message')
     def validate_message(self, key, message):
         if len(message) < 0:
@@ -74,11 +75,14 @@ class Notification(db.Model, SerializerMixin):
 class QueueLine(db.Model, SerializerMixin):
     __tablename__ = 'queue'
 
+
+
     id = Column(Integer, primary_key=True)
     queue_position = Column(Integer, nullable=False)
     status = Column(String)
     customer_id = Column(Integer, ForeignKey('customers.id'))
 
+    customers = relationship('Customer', back_populates='queues' )
 
 
 class CustomerNotification(db.Model, SerializerMixin):

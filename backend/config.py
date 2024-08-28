@@ -25,4 +25,4 @@ db.init_app(app)
 api = Api(app)
 
 # Instantiate CORS
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+CORS(app)
