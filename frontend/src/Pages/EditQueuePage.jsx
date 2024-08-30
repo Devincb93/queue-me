@@ -26,7 +26,7 @@ function EditQueuePage() {
     const navigate = useNavigate()
     return(
         <div>
-            <h1 className=''>Queue</h1>
+            <h1 className=' text-center fixed top-12 left-64'>Queue</h1>
             <ul>
                 <div>
                     <div>

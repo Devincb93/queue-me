@@ -19,9 +19,10 @@ def customers():
 def employees():
     employees = []
     for i in range(3):
+        password = fake.password()
         employee = Employee(
             employee_login = fake.user_name(),
-            employee_password = fake.password()
+            employee_password = Employee.hash_password(password)
         )
         employees.append(employee)
     return employees

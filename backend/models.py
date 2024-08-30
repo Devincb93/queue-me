@@ -1,14 +1,12 @@
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship, validates
-import bcrypt 
+from bcrypt import hashpw, gensalt, checkpw
 from config import db
 from datetime import datetime
 
 class Employee(db.Model, SerializerMixin):
     __tablename__ = 'employees'
-
-    
 
     id = Column(Integer, primary_key=True)
     employee_login = Column(String, nullable=False)
@@ -28,8 +26,17 @@ class Employee(db.Model, SerializerMixin):
         else:
             return password
         
+    @staticmethod    
+    def hash_password(plain_password):
+        return hashpw(plain_password.encode('utf-8'), gensalt()).decode('utf-8')
+    
+    def check_password(self, plain_password):
+        return checkpw(plain_password.encode('utf-8'), self.employee_password.encode('utf-8'))
+        
 class Customer(db.Model, SerializerMixin):
     __tablename__ = 'customers'
+
+    serialize_rules=('-queues','-customer_notifications')
 
     id = Column(Integer, primary_key=True)
     first_last_name = Column(String, nullable=False)
@@ -42,11 +49,11 @@ class Customer(db.Model, SerializerMixin):
     queues = relationship('QueueLine', back_populates='customers')
 
     @validates('first_last_name')
-    def validate_names(self, key, first_lase_name):
-        if len(first_lase_name) < 0:
+    def validate_names(self, key, first_last_name):
+        if len(first_last_name) == 0:
             raise ValueError("Must enter a name to add to queue")
         else:
-            return first_lase_name
+            return first_last_name
     @validates('phone_number')
     def validate_number(self, key, phone_number):
         if len(phone_number) < 10:
