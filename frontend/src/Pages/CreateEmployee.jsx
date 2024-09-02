@@ -52,14 +52,15 @@ function CreateEmployee(){
             <form onSubmit={formik.handleSubmit}>
                 <label htmlFor='employee_login'/>
                 <br/>
-                <input 
+                <input className='m-1 rounded-md bg-pink-50'
                     id='employee_login'
                     name='employee_login'
                     onChange={formik.handleChange}
                     value={formik.values.employee_login}
                     />
                 <label htmlFor='employee_password'/>
-                <input
+                <input className='m-1 rounded-md bg-pink-50'
+                    type='password'
                     id='employee_password'
                     name='employee_password'
                     onChange={formik.handleChange}

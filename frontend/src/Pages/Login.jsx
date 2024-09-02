@@ -54,30 +54,32 @@ function Login() {
     return (
         <div >
             <form className=''onSubmit={formik.handleSubmit}>
-                <label className='' htmlFor='employee_login'></label>
+                
                 <br/>
-                <input
+                <input className='m-1 bg-pink-50'
                     id='employee_login'
                     name='employee_login'
                     autoComplete='current-login'
+                    placeholder='employee login'
                     onChange={formik.handleChange}
                     value={formik.values.employee_login}    
                 />
-                <label htmlFor='employee_password'></label>
-                <input
+                
+                <input className='m-1 bg-pink-50'
                     type='password'
                     id='employee_password'
                     name='employee_password'
                     autoComplete="current-password"
+                    placeholder='password'
                     onChange={formik.handleChange}
                     value={formik.values.employee_password}
                 />
                 <p style={{color:"red"}}>{formik.errors.employee_login}</p>
-                <button type='submit'>Login</button>
+                <button className='m-1' type='submit'>Login</button>
                 
-                <h1>{loggedInUser.employee_login}</h1>
+                
             </form>
-            <button onClick={()=> navigate('create_employee')}>Create</button>
+            <button className='m-1' onClick={()=> navigate('create_employee')}>Create</button>
         </div>
     )
 }

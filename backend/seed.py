@@ -51,60 +51,70 @@ def queueLines():
         queue_position = 1,
         status = "waiting",
         customer_id = 1,
+        room_number = None,
 
     )
     queue2 = QueueLine(
         queue_position = 2,
         status = "waiting",
         customer_id = 2,
+        room_number = None,
 
     )
     queue3 = QueueLine(
         queue_position = 3,
         status = "waiting",
         customer_id = 3,
+        room_number = None,
 
     )
     queue4 = QueueLine(
         queue_position = 4,
         status = "waiting",
         customer_id = 4,
+        room_number = None,
 
     )
     queue5 = QueueLine(
         queue_position = 5,
         status = "waiting",
         customer_id = 5,
+        room_number = None,
 
     )
     queue6 = QueueLine(
         queue_position = 6,
         status = "waiting",
         customer_id = 6,
+        room_number = None,
 
     )
     queue7 = QueueLine(
         queue_position = 7,
         status = "waiting",
-        customer_id = 7
+        customer_id = 7,
+        room_number = None,
 
     )
     queue8 = QueueLine(
         queue_position = 9,
         status = "waiting",
         customer_id = 8,
+        room_number = None,
 
     )
     queue9 = QueueLine(
         queue_position = 9,
         status = "waiting",
         customer_id = 9,
+        room_number = None,
 
     )
     queue10 = QueueLine(
         queue_position = 10,
         status = "waiting",
         customer_id = 10,
+        room_number = None,
 
     )
 

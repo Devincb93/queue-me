@@ -88,6 +88,7 @@ class QueueLine(db.Model, SerializerMixin):
     queue_position = Column(Integer, nullable=False)
     status = Column(String)
     customer_id = Column(Integer, ForeignKey('customers.id'))
+    room_number = Column(Integer, nullable=True)
 
     customers = relationship('Customer', back_populates='queues' )
 
@@ -104,3 +105,6 @@ class CustomerNotification(db.Model, SerializerMixin):
 
     customer = relationship('Customer', back_populates='customer_notifications')
     notification = relationship('Notification', back_populates='customer_notifications')
+
+
+

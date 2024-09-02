@@ -15,9 +15,10 @@ function Home() {
 
 
     return (
-        <div className=''>
-            <div className=''>
+        <div className='flex flex-col items-center'>
+            <div className='text-center'>
             <Login/>
+            
             </div>
         </div>
     )

@@ -1,42 +1,30 @@
-import React, {useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
+import { MyContext } from '../mycontext'
 
 function EditQueuePage() {
-    const [allCustomers, setAllCustomers] = useState([])
+    
+    const { fetchCustomersForQueue, allCustomers } = useContext(MyContext)
 
-    useEffect(() => {
-        fetch('/customers')
-            .then(resp => {
-                if (!resp.ok) {
-                    throw new Error(`HTTP error! status: ${resp.status}`);
-                }
-                return resp.json();
-            })
-            .then(data => {
-                setAllCustomers(data);
-                console.log(data);
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-            });
-    }, []);
+    
 
     console.log("customers should be here", allCustomers)
+    
 
     const navigate = useNavigate()
     return(
-        <div>
-            <h1 className=' text-center fixed top-12 left-64'>Queue</h1>
+        <div className='text-center'>
+            <h1 className=' text-center top-12 left-64'>Queue</h1>
             <ul>
-                <div>
-                    <div>
+                <div className='justify-center'>
+                    <div className='flex flex-col items-center'>
                         {allCustomers.map(customer => (
-                            <div key={customer.id}>
-                                <h1>{customer.first_last_name}</h1>
+                            <div className=' text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium rounded-lg text-sm w-32 m-1 ' key={customer.id}>
+                                <h1 className='text-center'>{customer.first_last_name}</h1>
                             </div>
                         ))}
                     </div>
-                <li className='mb-6'>User1</li>
+                
                 <button className='bg-pink-400 rounded-lg w-16 hover:bg-pink-600'>Remove</button>
                 <button className='bg-pink-400 rounded-lg w-16 hover:bg-pink-600'>up</button>
                 <button className='bg-pink-400 rounded-lg w-16 hover:bg-pink-600'>down</button>
