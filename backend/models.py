@@ -1,5 +1,5 @@
 from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, Table
 from sqlalchemy.orm import relationship, validates
 from bcrypt import hashpw, gensalt, checkpw
 from config import db
@@ -101,7 +101,8 @@ class CustomerNotification(db.Model, SerializerMixin):
     id = Column(Integer, primary_key=True)
     customer_id = Column(Integer, ForeignKey('customers.id'), nullable=False)
     notification_id = Column(Integer, ForeignKey('notifications.id'), nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow)  # Additional attribute example
+    timestamp = Column(DateTime, default=datetime.utcnow) 
+    notification_sent = Column(Boolean, default=False)
 
     customer = relationship('Customer', back_populates='customer_notifications')
     notification = relationship('Notification', back_populates='customer_notifications')

@@ -15,6 +15,7 @@ bcrypt = "*"
 flask-session = "*"
 jwt = "*"
 pyjwt = "*"
+twilio = "*"
 
 [dev-packages]
 

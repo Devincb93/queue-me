@@ -6,6 +6,7 @@ import EditQueuePage from './Pages/EditQueuePage';
 import CreateEmployee from './Pages/CreateEmployee';
 import { MyContext } from './mycontext';
 import { Navigate } from 'react-router-dom';
+import EmployeeProfile from './Pages/EmployeeProfile';
 
 function App() {
   const { loggedInUser } = useContext(MyContext)
@@ -36,6 +37,7 @@ function App() {
           <Route path='customer_form' element={<PrivateRoute element={CustomerForm}/>}/>
           <Route path='queue' element={<PrivateRoute element={EditQueuePage}/>}/>
           <Route path='create_employee' element={<CreateEmployee/>}/>
+          <Route path='employee_profile' element={<PrivateRoute element={EmployeeProfile}/>}/>
         </Route>
     
       </Routes>

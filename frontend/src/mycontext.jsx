@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Login from './Pages/Login';
+
 
 const MyContext = React.createContext();
 
@@ -9,6 +10,9 @@ const MyProvider = (props) =>{
     const [loggedInUser, setLoggedInUser] = useState({})
     const [newEmployee, setNewEmployee] = useState({})
     const [allCustomers, setAllCustomers] = useState([])
+    
+
+   
 
     useEffect(() => {
         
@@ -45,11 +49,13 @@ const MyProvider = (props) =>{
         
     }, [Login]);
 
+    
+
   const handleLogout = async () => {
     try {
         await fetch('http://localhost:5555/logout', {
             method: 'POST',
-            credentials: 'include', // Include cookies in the request if using cookie-based sessions
+            credentials: 'include', 
         });
 
         sessionStorage.clear();
@@ -62,7 +68,7 @@ const MyProvider = (props) =>{
 };
 
 const fetchCustomersForQueue = () => {
-    fetch('/customers')
+    fetch('http://127.0.0.1:5555/customers')
             .then(resp => {
                 if (!resp.ok) {
                     throw new Error(`HTTP error! status: ${resp.status}`);
@@ -83,7 +89,7 @@ const fetchCustomersForQueue = () => {
 const addToQueue = async (values) => {
     try {
         console.log("attempting to add to official queue", values)
-        const response = await fetch('http://127.0.0.1:5555/queue', {
+        const response = await fetch('http://127.0.0.1:5555/add_queue', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -108,7 +114,7 @@ const addToQueue = async (values) => {
 useEffect(()=> {
     fetchCustomersForQueue()
     
-}, [setAllCustomers])
+}, [setAllCustomers, navigate])
 
     
 
@@ -123,7 +129,8 @@ useEffect(()=> {
            fetchCustomersForQueue,
            allCustomers,
            setAllCustomers, 
-           addToQueue
+           addToQueue,
+           
           }}
         >
           {props.children}

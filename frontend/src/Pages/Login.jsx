@@ -37,7 +37,9 @@ function Login() {
                 const data = await response.json();
 
                 if (response.ok) {
+                    
                     setLoggedInUser(data);
+                    console.log("heres the user after set", data)
                     navigate('/customer_form'); 
                 } else {
                     

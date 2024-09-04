@@ -5,6 +5,7 @@ from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from flask_session import Session
+from twilio.rest import Client
 
 # Local imports
 
@@ -13,6 +14,11 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'edikeyted'
+
+account_sid = 'AC23debc44a9e96efddf2d1e91b210f9ec'
+auth_token = '7b61474dd955a4b6a31a8ccde84d3bce'
+client = Client(account_sid, auth_token)
+
 
 app.json.compact = False
 

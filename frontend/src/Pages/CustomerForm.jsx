@@ -8,7 +8,7 @@ import { useFormik } from 'formik'
 function CustomerForm() {
 
     const navigate = useNavigate()
-    const { handleLogout, addToQueue } = useContext(MyContext)
+    const { handleLogout, addToQueue, loggedInUser } = useContext(MyContext)
 
     const formSchema = yup.object().shape({
         first_last_name: yup.string().required('Must enter a first and last name'),
@@ -81,8 +81,12 @@ function CustomerForm() {
                 value={formik.values.email}
                 />
                 <button className='bg-pink-400 rounded-md w-16 hover:bg-pink-600' type='submit'>Add Babe</button>
-                <button className='m-1 bg-pink-400 rounded-md w-16 hover:bg-pink-600' type='button' onClick={()=> handleLogout()}>Log Out</button>
+                
                 <button className='m-1 bg-pink-400 rounded-md w-16 hover:bg-pink-600' type='button' onClick={()=>navigate('/queue')}>Edit</button>
+                <p className='underline'>Hi {loggedInUser.employee_login}, 
+                    <button className='m-1 bg-pink-400 rounded-md w-16 hover:bg-pink-600' type='button' onClick={()=> handleLogout()}>Log Out</button>
+                    <button className='m-1 bg-pink-400 rounded-md w-16 hover:bg-pink-600' type='button' onClick={()=> navigate('/employee_profile')}>Update</button>
+                </p>
                 <DressingRooms/>
 
             </form>
