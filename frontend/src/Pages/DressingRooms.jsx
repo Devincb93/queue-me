@@ -25,10 +25,9 @@ const DressingRooms = () => {
           const data = await response.json();
           console.log("Fetched room data:", data);
 
-          // Create a clean state based on initialRooms
           let updatedRooms = { ...initialRooms };
 
-          // Only update rooms that have occupants
+          
           data.forEach(room => {
             if (updatedRooms.hasOwnProperty(room.room_number)) {
               updatedRooms[room.room_number] = room.customer_name || null;

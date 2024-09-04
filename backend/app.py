@@ -9,6 +9,7 @@ import datetime
 from sqlalchemy.exc import SQLAlchemyError
 
 
+
 def validate_token(token):
     try:
         token = token.replace('Bearer ', '') if token.startswith('Bearer ') else token
@@ -99,10 +100,10 @@ class Login(Resource):
 
         user = Employee.query.filter(Employee.employee_login == employee_login).first()
         if user and user.check_password(employee_password):
-            # Generate JWT token
+            
             token = jwt.encode({
                 'employee_login': user.employee_login,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Token expires in 1 hour
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  
             }, app.config['SECRET_KEY'], algorithm='HS256')
 
             return {
@@ -124,7 +125,7 @@ class Logout(Resource):
 class CheckSession(Resource):
     def get(self):
         token = request.headers.get('Authorization')
-        if token and validate_token(token):  # Implement `validate_token` function
+        if token and validate_token(token):  
             return {'logged_in': True}, 200
         else:
             return {'logged_in': False}, 401
@@ -157,17 +158,17 @@ class Employees(Resource):
         
 class DressingRoomAction(Resource):
     def put(self, room_number):
-        # Check if the room is already occupied
+    
         room_occupied = QueueLine.query.filter_by(room_number=room_number, status='in_room').first()
         if room_occupied:
             return {"error": f"Room {room_number} is already occupied"}, 400
         
-        # Get the next customer in the queue
+       
         next_in_queue = QueueLine.query.filter_by(status='waiting').order_by(QueueLine.queue_position).first()
         if not next_in_queue:
             return {"error": "No customers in queue"}, 400
         
-        # Assign the customer to the room
+       
         next_in_queue.status = 'in_room'
         next_in_queue.room_number = room_number
         db.session.commit()
@@ -181,7 +182,7 @@ class DressingRoomAction(Resource):
         }, 200
 
     def delete(self, room_number):
-        # Remove customer from the room
+        
         customer_in_room = QueueLine.query.filter_by(room_number=room_number).first()
         if not customer_in_room:
             return {"error": "No customer in dressing room"}, 400
@@ -203,7 +204,7 @@ class DressingRoomAction(Resource):
 class GetDressingRooms(Resource):
     def get(self):
         try:
-            # Fetch all rooms with their customer information
+           
             rooms = QueueLine.query.all()
             rooms_data = [
                 {
@@ -219,9 +220,10 @@ class GetDressingRooms(Resource):
 class GetQueueLineCustomers(Resource):
     def get(self):
         try:
-            all_queues = QueueLine.query.all()
+            all_queues = QueueLine.query.order_by(QueueLine.queue_position).all()
             customer_ids = [queue.customer_id for queue in all_queues]
             customers = [customer.to_dict() for customer in Customer.query.filter(Customer.id.in_(customer_ids)).all()]
+           
             if customers:
                 return customers,200
             else:
@@ -252,42 +254,53 @@ class GetQueueCustomerByID(Resource):
 class MoveUpQueue(Resource):
     def put(self, id):
         try:
-            queue_entry = QueueLine.query.filter_by(customer_id=id).first()
-
+            # Find the queue entry with the given customer_id
+            queue_entry = QueueLine.query.filter(QueueLine.customer_id == id).first()
             if queue_entry:
                 current_position = queue_entry.queue_position
-                previous_entry = QueueLine.query.filter_by(queue_position=current_position - 1).first()
-
-                if previous_entry:
-                    queue_entry.queue_position, previous_entry.queue_position = previous_entry.queue_position, queue_entry.queue_position
-                    db.session.commit()
-                    return {"success": True}, 200
-                else:
-                    return {"error": "No customer ahead to swap with."}, 400
-            else:
-                return {"error": "Customer not found in the queue."}, 404
-        except Exception as e:
+                
+                # Ensure the entry is not already at the front of the queue
+                if current_position > 1:
+                    # Find the entry above the current one
+                    
+                    above = QueueLine.query.filter(QueueLine.queue_position == current_position - 1).first()
+                    print("here is above", above)
+                    print("test",above.queue_position)
+                    if above:
+                        # Swap positions
+                        queue_entry.queue_position -= 1
+                        print("this is the queue_entry",queue_entry.queue_position)
+                        above.queue_position += 1
+                        
+                        db.session.commit()
+                        
+                        return {"success": "Customer moved up in queue"}, 200
+                    else:
+                        return {"error": "Above entry not found"}, 404
+                return {"error": "Customer is already at the front of the queue"}, 400
+            return {"error": "Queue entry not found"}, 404
+        except SQLAlchemyError as e:
             return {"error": str(e)}, 500
+        
 
 class MoveDownQueue(Resource):
     def put(self, id):
         try:
-            queue_entry = QueueLine.query.filter_by(customer_id=id).first()
-
+            queue_entry = QueueLine.query.filter(QueueLine.id==id).first()
             if queue_entry:
+                max_position = db.session.query(db.func.max(QueueLine.queue_position)).scalar()
                 current_position = queue_entry.queue_position
-                next_entry = QueueLine.query.filter_by(queue_position=current_position + 1).first()
-
-                if next_entry:
-                    queue_entry.queue_position, next_entry.queue_position = next_entry.queue_position, queue_entry.queue_position
+                if current_position < max_position:
+                    next_entry = QueueLine.query.filter_by(queue_position=current_position + 1).first()
+                    queue_entry.queue_position += 1
+                    next_entry.queue_position -= 1
                     db.session.commit()
-                    return {"success": True}, 200
-                else:
-                    return {"error": "No customer behind to swap with."}, 400
-            else:
-                return {"error": "Customer not found in the queue."}, 404
-        except Exception as e:
+                    return {"success": "Customer moved down in queue"}, 200
+                return {"error": "Customer is already at the end of the queue"}, 400
+            return {"error": "Queue entry not found"}, 404
+        except SQLAlchemyError as e:
             return {"error": str(e)}, 500
+
         
 class GetEmployeeById(Resource):
     def get(self, id):
@@ -341,23 +354,23 @@ class SendNotification(Resource):
             return {"error": "Customer ID is required"}, 400
         
         try:
-            # Fetch the notification details using the CustomerNotification model
+            
             customer_notification = CustomerNotification.query.filter_by(customer_id=customer_id).first()
             
             if not customer_notification:
                 return {"error": "No notifications found for this customer"}, 404
             
-            # Assuming Notification model has a 'message' field
+            
             message_body = customer_notification.notification.message
-            phone_number = customer_notification.customer.phone_number  # Assuming Customer model has a 'phone_number' field
+            phone_number = customer_notification.customer.phone_number  
 
             if not phone_number or not message_body:
                 return {"error": "Phone number or message body is missing in the database"}, 500
             
-            # Send the SMS using Twilio API
+           
             message = client.messages.create(
                 body=message_body,
-                from_='+1234567890',  # Replace with your Twilio number
+                from_='+1234567890',  
                 to=phone_number
             )
             

@@ -76,9 +76,9 @@ function EmployeeProfile() {
         .then(response => {
             if (response.ok) {
                 console.log("User deleted");
-                // Remove the user from context
-                setLoggedInUser(null); // This will log out the user
-                // Navigate to the login page or home page
+                
+                setLoggedInUser(null); 
+                
                 navigate('/');
             } else {
                 return response.json().then(data => {

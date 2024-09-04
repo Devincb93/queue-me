@@ -40,7 +40,7 @@ function CustomerForm() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    const customerId = data.id; // Assuming the backend returns the ID as `id`
+                    const customerId = data.id; 
                 
                     console.log("here ya data",data)
                     addToQueue(data)

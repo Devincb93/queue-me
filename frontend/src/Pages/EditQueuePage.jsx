@@ -7,18 +7,20 @@ function EditQueuePage() {
     
     const [ selectedCustomer, setSelectedCustomer] = useState(null);
     const [queueCustomers, setQueueCustomers] = useState([])
+    const navigate = useNavigate()
     
 
     useEffect(() => {
         fetchQueue();
-    }, []);
+    }, [navigate]);
     
     const fetchQueue = () => {
         fetch('http://127.0.0.1:5555/queue')
             .then(resp => resp.json())
             .then(data => {
                 const sortedData = data.sort((a, b) => a.queue_position - b.queue_position);
-                setQueueCustomers(sortedData);
+                setQueueCustomers(data);
+                console.log("the sorted data", queueCustomers)
             })
             .catch(error => console.error('Error fetching queue:', error));
     };
@@ -55,16 +57,15 @@ function EditQueuePage() {
 
     const handleRemove = () => {
         if (selectedCustomer) {
-            const updatedRooms = queueCustomers.filter(customer => customer.id !== selectedCustomer.id);
-            setQueueCustomers(updatedRooms); // Update state in parent component
+            const updatedqueue = queueCustomers.filter(customer => customer.id !== selectedCustomer.id);
+            setQueueCustomers(updatedqueue); 
 
-            // Send a DELETE request to the backend to remove the customer from the queue
             fetch(`http://127.0.0.1:5555/queue/${selectedCustomer.id}`,
                  { method: 'DELETE' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        setSelectedCustomer(null); // Clear selection after removal
+                        setSelectedCustomer(null); 
                     } else {
                         console.log("There was some error deleting")
                     }
@@ -75,31 +76,17 @@ function EditQueuePage() {
 
     const handleMoveUp = () => {
         if (selectedCustomer) {
-            const index = queueCustomers.findIndex(customer => customer.id === selectedCustomer.id);
-            if (index > 0) {
-                const updatedQueues = [...queueCustomers];
-                [updatedQueues[index - 1], updatedQueues[index]] = [updatedQueues[index], updatedQueues[index - 1]];
-                setQueueCustomers(updatedQueues);
-    
-                fetch(`http://127.0.0.1:5555/queue/move-up/${selectedCustomer.id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ newPosition: index - 1 }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        alert('Error moving customer up in the queue.');
-                        // Revert the local state if the update failed
-                        fetchQueue();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error moving customer up:', error);
-                    // Revert the local state if there was an error
-                    fetchQueue();
-                });
-            }
+            console.log("this is the customer id for moving up", selectedCustomer.id)
+            fetch(`http://127.0.0.1:5555/queue/move-up/${selectedCustomer.id}`, { method: 'PUT' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    fetchQueue();  
+                } else {
+                    alert(data.error || 'Error moving customer up in the queue.');
+                }
+            })
+            .catch(error => console.error('Error moving customer up:', error));
         }
     };
     
@@ -114,19 +101,19 @@ function EditQueuePage() {
                 fetch(`http://127.0.0.1:5555/queue/move-down/${selectedCustomer.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ newPosition: index + 1 }),
+                    body: JSON.stringify({ id: index + 1 }),
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (!data.success) {
                         alert('Error moving customer down in the queue.');
-                        // Revert the local state if the update failed
+                       
                         fetchQueue();
                     }
                 })
                 .catch(error => {
                     console.error('Error moving customer down:', error);
-                    // Revert the local state if there was an error
+                    
                     fetchQueue();
                 });
             }
@@ -135,18 +122,21 @@ function EditQueuePage() {
     console.log("customers should be here queue",queueCustomers )
 
 
-    const navigate = useNavigate()
+    
     return (
         <div className='text-center'>
-            <h1 className='text-center top-12 left-64'>Queue</h1>
+            <h1 className='text-center top-12 left-64 grid items-center'>Queue</h1>
             <ul>
                 {queueCustomers.map(customer => (
-                    <li key={customer.id} onClick={() => handleSelectCustomer(customer)}>
+                    <li className='bg-pink-400 m-1 w-80 h-7 items-center text-center hover:bg-pink-500' key={customer.id} onClick={() => handleSelectCustomer(customer)}>
                         {customer.first_last_name}
                     </li>
                 ))}
             </ul>
-            {selectedCustomer && (
+            <button onClick={()=>{handleMoveUp()}} className='m-1 bg-pink-400 hover:bg-pink-600 rounded-md w-16'>Up</button>
+            <button onClick={()=>{handleMoveDown()}} className='m-1 bg-pink-400 hover:bg-pink-600 rounded-md w-16'>Down</button>
+            <button onClick={()=>{navigate('/customer_form')}}>Go Back</button>
+            {/* {selectedCustomer && (
                 <div>
                     <h2>Selected Customer: {selectedCustomer.first_last_name}</h2>
                     <button onClick={handleRemove}>Remove</button>
@@ -161,7 +151,7 @@ function EditQueuePage() {
                     <button onClick={handleSendNotification}>Send Notification</button>
                 </div>
             )}
-            <ToastContainer />
+            <ToastContainer /> */}
         </div>
     );
 }
