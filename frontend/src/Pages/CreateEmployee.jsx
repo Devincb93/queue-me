@@ -1,19 +1,18 @@
-import React, { useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useFormik } from 'formik'
-import * as yup from 'yup'
-import { MyContext } from '../mycontext'
+import React, { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import { MyContext } from '../mycontext';
+import { toast } from 'react-toastify';
 
-function CreateEmployee(){
-
-    const navigate = useNavigate()
-    const { newEmployee, setNewEmployee } = useContext(MyContext)
-    
+function CreateEmployee() {
+    const navigate = useNavigate();
+    const { setNewEmployee } = useContext(MyContext);
 
     const formSchema = yup.object().shape({
-        employee_login: yup.string().required('Must enter a employee login'),
-        employee_password: yup.string().required("Must enter a password"),
-    })
+        employee_login: yup.string().required('Employee login is required'),
+        employee_password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+    });
 
     const formik = useFormik({
         initialValues: {
@@ -21,56 +20,106 @@ function CreateEmployee(){
             employee_password: '',
         },
         validationSchema: formSchema,
-        onSubmit: (values) => {
-            console.log("form submitted with values:", values)
-            fetch(`http://localhost:5555/employees`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    employee_login: values.employee_login,
-                    employee_password: values.employee_password
-                })
-            })
-            .then(resp => resp.json())
-            .then(data => {
-                setNewEmployee(data)
-                console.log(data)
-                navigate('/')
-            })
-            
-            .catch ((error) => {
-            console.error("Error creating employee login", error)
-        })    
-        }
-    })
-    
-    
+        onSubmit: async (values, { setSubmitting }) => {
+            try {
+                const response = await fetch('http://localhost:5555/employees', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(values),
+                });
+                
+                const data = await response.json();
+
+                if (response.ok) {
+                    setNewEmployee(data);
+                    toast.success('Employee account created successfully!');
+                    navigate('/');
+                } else {
+                    toast.error(data.error || 'Failed to create account');
+                }
+            } catch (error) {
+                console.error("Error creating employee login", error);
+                toast.error('An error occurred. Please try again.');
+            } finally {
+                setSubmitting(false);
+            }
+        },
+    });
+
     return (
-        <div>
-            <form onSubmit={formik.handleSubmit}>
-                <label htmlFor='employee_login'/>
-                <br/>
-                <input className='m-1 rounded-md bg-pink-50'
-                    id='employee_login'
-                    name='employee_login'
-                    onChange={formik.handleChange}
-                    value={formik.values.employee_login}
-                    />
-                <label htmlFor='employee_password'/>
-                <input className='m-1 rounded-md bg-pink-50'
-                    type='password'
-                    id='employee_password'
-                    name='employee_password'
-                    onChange={formik.handleChange}
-                    value={formik.values.employee_password}
-                    />
-                <button type='submit'>Submit</button>
-            </form>
-            <button onClick={() => navigate('/')}>Back</button>
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+            <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+                <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Create Employee Account</h1>
+                <form onSubmit={formik.handleSubmit} className="space-y-6">
+                    <div>
+                        <label
+                            htmlFor="employee_login"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Employee Login
+                        </label>
+                        <input
+                            id="employee_login"
+                            name="employee_login"
+                            type="text"
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            value={formik.values.employee_login}
+                            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                                formik.touched.employee_login && formik.errors.employee_login ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                        />
+                        {formik.touched.employee_login && formik.errors.employee_login && (
+                            <p className="mt-2 text-sm text-red-600">{formik.errors.employee_login}</p>
+                        )}
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="employee_password"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Password
+                        </label>
+                        <input
+                            id="employee_password"
+                            name="employee_password"
+                            type="password"
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            value={formik.values.employee_password}
+                            className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                                formik.touched.employee_password && formik.errors.employee_password ? 'border-red-500' : 'border-gray-300'
+                            }`}
+                        />
+                        {formik.touched.employee_password && formik.errors.employee_password && (
+                            <p className="mt-2 text-sm text-red-600">{formik.errors.employee_password}</p>
+                        )}
+                    </div>
+
+                    <div>
+                        <button
+                            type="submit"
+                            disabled={formik.isSubmitting}
+                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400"
+                        >
+                            {formik.isSubmitting ? 'Creating Account...' : 'Create Account'}
+                        </button>
+                    </div>
+                </form>
+                <div className="mt-6 text-center">
+                    <button
+                        onClick={() => navigate('/')}
+                        className="font-medium text-blue-600 hover:text-blue-500"
+                    >
+                        Back to Login
+                    </button>
+                </div>
+            </div>
         </div>
-    )
+    );
 }
 
-export default CreateEmployee
+export default CreateEmployee;

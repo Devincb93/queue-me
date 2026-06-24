@@ -14,7 +14,7 @@ class Employee(db.Model, SerializerMixin):
 
     @validates('employee_login')
     def validate_employee_login(self, key, username):
-        if len(username) < 0:
+        if len(username) == 0:
             raise ValueError("Must enter a employee login")
         else:
             return username
@@ -40,7 +40,7 @@ class Customer(db.Model, SerializerMixin):
 
     id = Column(Integer, primary_key=True)
     first_last_name = Column(String, nullable=False)
-    phone_number = Column(Integer)
+    phone_number = Column(String)
     email = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
@@ -56,7 +56,7 @@ class Customer(db.Model, SerializerMixin):
             return first_last_name
     @validates('phone_number')
     def validate_number(self, key, phone_number):
-        if len(phone_number) < 10:
+        if not phone_number or len(phone_number) < 10:
             raise ValueError("Must enter a valid phone number")
         else:
             return phone_number
@@ -74,7 +74,7 @@ class Notification(db.Model, SerializerMixin):
    
     @validates('message')
     def validate_message(self, key, message):
-        if len(message) < 0:
+        if len(message) == 0:
             raise ValueError('No message added for notification, please add one')
         else:
             return message
@@ -82,7 +82,7 @@ class Notification(db.Model, SerializerMixin):
 class QueueLine(db.Model, SerializerMixin):
     __tablename__ = 'queue'
 
-
+    serialize_rules = ('-customers.queues',)
 
     id = Column(Integer, primary_key=True)
     queue_position = Column(Integer, nullable=False)

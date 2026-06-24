@@ -36,7 +36,7 @@ function App() {
           <Route path='' element={<Home/>}/>
           <Route path='customer_form' element={<PrivateRoute element={CustomerForm}/>}/>
           <Route path='queue' element={<PrivateRoute element={EditQueuePage}/>}/>
-          <Route path='create_employee' element={<CreateEmployee/>}/>
+          <Route path='create_employee' element={<PrivateRoute element={CreateEmployee}/>}/>
           <Route path='employee_profile' element={<PrivateRoute element={EmployeeProfile}/>}/>
         </Route>
     

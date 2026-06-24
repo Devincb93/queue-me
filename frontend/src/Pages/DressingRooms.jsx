@@ -1,98 +1,95 @@
 import React, { useState, useEffect } from 'react';
-import EditQueuePage from './EditQueuePage';
+import { toast } from 'react-toastify';
+
+const DressingRoom = ({ room, onRoomClick }) => {
+    const { number, customer_name } = room;
+    const isOccupied = !!customer_name;
+
+    return (
+        <div
+            className={`
+                p-4 rounded-lg shadow-md cursor-pointer transition-all duration-300 
+                flex flex-col items-center justify-center aspect-square
+                ${isOccupied ? 'bg-gray-800 text-white' : 'bg-white hover:bg-gray-100'}
+            `}
+            onClick={() => onRoomClick(number)}
+        >
+            <span className="text-2xl font-bold">{number}</span>
+            <span className="text-sm mt-2 text-center">{isOccupied ? customer_name : 'Available'}</span>
+        </div>
+    );
+};
 
 
 const DressingRooms = () => {
-  const initialRooms = {
-    1: null,
-    2: null,
-    3: null,
-    4: null,
-    5: null,
-    6: null,
-    7: null,
-    8: null,
-  };
+    const [rooms, setRooms] = useState([]);
 
-  const [rooms, setRooms] = useState(initialRooms);
-  const [showEditQueue, setShowEditQueue] = useState(false);
+    useEffect(() => {
+        const fetchRooms = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:5555/dressing_room');
+                if (response.ok) {
+                    const data = await response.json();
 
-  useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:5555/dressing_room');
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Fetched room data:", data);
+                    const initialRooms = Array.from({ length: 8 }, (_, i) => ({
+                        number: i + 1,
+                        customer_name: null,
+                    }));
 
-          let updatedRooms = { ...initialRooms };
+                    data.forEach(room => {
+                        const index = initialRooms.findIndex(r => r.number === room.room_number);
+                        if (index !== -1) {
+                            initialRooms[index].customer_name = room.customer_name;
+                        }
+                    });
 
-          
-          data.forEach(room => {
-            if (updatedRooms.hasOwnProperty(room.room_number)) {
-              updatedRooms[room.room_number] = room.customer_name || null;
+                    setRooms(initialRooms);
+                } else {
+                    toast.error("Failed to fetch rooms.");
+                }
+            } catch (error) {
+                console.error("Error fetching rooms:", error);
+                toast.error("An error occurred while fetching rooms.");
             }
-          });
+        };
+        fetchRooms();
+    }, []);
 
-          setRooms(updatedRooms);
-        } else {
-          console.error("Failed to fetch rooms:", response.statusText);
+    const handleRoomClick = async (roomNumber) => {
+        const room = rooms.find(r => r.number === roomNumber);
+        if (!room) return;
+
+        const isOccupied = !!room.customer_name;
+        const method = isOccupied ? 'DELETE' : 'PUT';
+
+        try {
+            const response = await fetch(`http://127.0.0.1:5555/dressing_room/${roomNumber}`, { method });
+            const data = await response.json();
+
+            if (response.ok) {
+                setRooms(prevRooms => prevRooms.map(r => 
+                    r.number === roomNumber ? { ...r, customer_name: isOccupied ? null : data.customer_name } : r
+                ));
+                toast.success(isOccupied ? `Room ${roomNumber} is now available.` : `Customer in Room ${roomNumber}.`);
+            } else {
+                toast.error(data.error || `Failed to update room ${roomNumber}.`);
+            }
+        } catch (error) {
+            console.error("Error handling room click:", error);
+            toast.error("An error occurred while updating the room.");
         }
-      } catch (error) {
-        console.error("Error fetching rooms:", error);
-      }
     };
-    fetchRooms();
-  }, []);
 
-  const handleRoomClick = async (roomNumber) => {
-    try {
-      if (rooms[roomNumber] !== null) {
-        const response = await fetch(`http://127.0.0.1:5555/dressing_room/${roomNumber}`, {
-          method: 'DELETE',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setRooms(prev => ({ ...prev, [roomNumber]: null }));
-          console.log(data.message);
-        } else {
-          const errorData = await response.json();
-          console.error("Failed to vacate room:", errorData.error || response.statusText);
-        }
-      } else {
-        const response = await fetch(`http://127.0.0.1:5555/dressing_room/${roomNumber}`, {
-          method: 'PUT',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setRooms(prev => ({ ...prev, [roomNumber]: data.customer_name }));
-        } else {
-          const errorData = await response.json();
-          console.error("Failed to occupy room:", errorData.error || response.statusText);
-        }
-      }
-    } catch (error) {
-      console.error("Error handling room click:", error);
-    }
-  };
-
-  return (
-    <div>
-      <h1 className='border-top-32 relative text-center'>Dressing Rooms</h1>
-      <div className="grid grid-cols-3 h-screen m-16 justify-items-center -mt-0 p-6">
-        {Object.keys(rooms).map((room) => (
-          <div
-            key={room}
-            className={`bg-pink-400 w-24 h-16 text-center rounded-lg text-lg mt-4 ${rooms[room] ? 'occupied' : ''}`}
-            onClick={() => handleRoomClick(room)}
-          >
-            {rooms[room] ? `Occupied by: ${rooms[room]}` : `Room ${room}`}
-          </div>
-        ))}
-      </div>
-      {showEditQueue && <EditQueuePage someProp={rooms} />}
-    </div>
-  );
+    return (
+        <div className="bg-gray-50 p-4 md:p-8 rounded-lg shadow-inner">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Dressing Rooms</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-4">
+                {rooms.map((room) => (
+                    <DressingRoom key={room.number} room={room} onRoomClick={handleRoomClick} />
+                ))}
+            </div>
+        </div>
+    );
 };
 
 export default DressingRooms;

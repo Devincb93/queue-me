@@ -1,159 +1,105 @@
-import React, {useContext, useEffect, useState} from 'react'
-import { useNavigate } from 'react-router-dom'
-import { MyContext } from '../mycontext'
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function EditQueuePage() {
-    
-    const [ selectedCustomer, setSelectedCustomer] = useState(null);
-    const [queueCustomers, setQueueCustomers] = useState([])
-    const navigate = useNavigate()
-    
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [queueCustomers, setQueueCustomers] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchQueue();
-    }, [navigate]);
-    
+        const interval = setInterval(fetchQueue, 5000); // Refresh every 5 seconds
+        return () => clearInterval(interval);
+    }, []);
+
     const fetchQueue = () => {
         fetch('http://127.0.0.1:5555/queue')
             .then(resp => resp.json())
             .then(data => {
                 const sortedData = data.sort((a, b) => a.queue_position - b.queue_position);
-                setQueueCustomers(data);
-                console.log("the sorted data", queueCustomers)
+                setQueueCustomers(sortedData);
             })
-            .catch(error => console.error('Error fetching queue:', error));
-    };
-    const handleSelectCustomer = (customer) => {
-        setSelectedCustomer(customer);
-        console.log(customer)
+            .catch(error => {
+                console.error('Error fetching queue:', error)
+                // toast.error('Failed to fetch queue.');
+            });
     };
 
-    const handleSendNotification = () => {
-        if (selectedCustomer) {
-            fetch('http://127.0.0.1:5555/send_notification', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    phone_number: selectedCustomer.phone_number,
-                    message_body: notificationMessage
-                })
-            })
+    const handleSelectCustomer = (customer) => {
+        setSelectedCustomer(customer);
+    };
+
+    const handleAction = (action) => {
+        if (!selectedCustomer) {
+            toast.warn('Please select a customer first.');
+            return;
+        }
+
+        let url = `http://127.0.0.1:5555/queue/move-${action}/${selectedCustomer.id}`;
+        let method = 'PUT';
+
+        if (action === 'remove') {
+            url = `http://127.0.0.1:5555/queue/${selectedCustomer.id}`;
+            method = 'DELETE';
+        }
+
+        fetch(url, { method })
             .then(response => response.json())
             .then(data => {
-                if (data.message) {
-                    toast.success('Notification sent successfully!');
+                if (data.success || data.message) {
+                    toast.success(`Customer ${action}d successfully.`);
+                    fetchQueue();
+                    if(action === 'remove') {
+                        setSelectedCustomer(null);
+                    }
                 } else {
-                    toast.error('Failed to send notification');
+                    toast.error(data.error || `Error ${action}ing customer.`);
                 }
             })
             .catch(error => {
-                console.error('Error sending notification:', error);
-                toast.error('Failed to send notification');
+                console.error(`Error ${action}ing customer:`, error);
+                toast.error(`Error ${action}ing customer.`);
+                fetchQueue();
             });
-        }
     };
 
-
-    const handleRemove = () => {
-        if (selectedCustomer) {
-            const updatedqueue = queueCustomers.filter(customer => customer.id !== selectedCustomer.id);
-            setQueueCustomers(updatedqueue); 
-
-            fetch(`http://127.0.0.1:5555/queue/${selectedCustomer.id}`,
-                 { method: 'DELETE' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        setSelectedCustomer(null); 
-                    } else {
-                        console.log("There was some error deleting")
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }
-    };
-
-    const handleMoveUp = () => {
-        if (selectedCustomer) {
-            console.log("this is the customer id for moving up", selectedCustomer.id)
-            fetch(`http://127.0.0.1:5555/queue/move-up/${selectedCustomer.id}`, { method: 'PUT' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    fetchQueue();  
-                } else {
-                    alert(data.error || 'Error moving customer up in the queue.');
-                }
-            })
-            .catch(error => console.error('Error moving customer up:', error));
-        }
-    };
-    
-    const handleMoveDown = () => {
-        if (selectedCustomer) {
-            const index = queueCustomers.findIndex(customer => customer.id === selectedCustomer.id);
-            if (index < queueCustomers.length - 1) {
-                const updatedQueues = [...queueCustomers];
-                [updatedQueues[index + 1], updatedQueues[index]] = [updatedQueues[index], updatedQueues[index + 1]];
-                setQueueCustomers(updatedQueues);
-    
-                fetch(`http://127.0.0.1:5555/queue/move-down/${selectedCustomer.id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: index + 1 }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        alert('Error moving customer down in the queue.');
-                       
-                        fetchQueue();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error moving customer down:', error);
-                    
-                    fetchQueue();
-                });
-            }
-        }
-    };
-    console.log("customers should be here queue",queueCustomers )
-
-
-    
     return (
-        <div className='text-center'>
-            <h1 className='text-center top-12 left-64 grid items-center'>Queue</h1>
-            <ul>
-                {queueCustomers.map(customer => (
-                    <li className='bg-pink-400 m-1 w-80 h-7 items-center text-center hover:bg-pink-500' key={customer.id} onClick={() => handleSelectCustomer(customer)}>
-                        {customer.first_last_name}
-                    </li>
-                ))}
-            </ul>
-            <button onClick={()=>{handleMoveUp()}} className='m-1 bg-pink-400 hover:bg-pink-600 rounded-md w-16'>Up</button>
-            <button onClick={()=>{handleMoveDown()}} className='m-1 bg-pink-400 hover:bg-pink-600 rounded-md w-16'>Down</button>
-            <button onClick={()=>{navigate('/customer_form')}}>Go Back</button>
-            {/* {selectedCustomer && (
-                <div>
-                    <h2>Selected Customer: {selectedCustomer.first_last_name}</h2>
-                    <button onClick={handleRemove}>Remove</button>
-                    <button onClick={handleMoveUp}>Move Up</button>
-                    <button onClick={handleMoveDown}>Move Down</button>
-                    <input 
-                        type='text' 
-                        value={notificationMessage} 
-                        onChange={(e) => setNotificationMessage(e.target.value)} 
-                        placeholder='Enter notification message' 
-                    />
-                    <button onClick={handleSendNotification}>Send Notification</button>
-                </div>
-            )}
-            <ToastContainer /> */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Waiting Queue</h2>
+            <div className="mb-4">
+                <ul className="divide-y divide-gray-200 h-64 overflow-y-auto">
+                    {queueCustomers.map((customer, index) => (
+                        <li
+                            key={customer.id}
+                            className={`p-3 flex items-center justify-between cursor-pointer transition-colors duration-200 ${selectedCustomer && selectedCustomer.id === customer.id ? 'bg-blue-100' : 'hover:bg-gray-50'}`}
+                            onClick={() => handleSelectCustomer(customer)}
+                        >
+                            <div className="flex items-center">
+                                <span className="text-md font-medium text-gray-700 mr-3">{index + 1}.</span>
+                                <span className="text-md text-gray-800">{customer.customers ? customer.customers.first_last_name : '...'}</span>
+                            </div>
+                            {selectedCustomer && selectedCustomer.id === customer.id && (
+                                <span className="text-blue-500 font-semibold text-sm">Selected</span>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            <div className="flex justify-center space-x-2">
+                <button onClick={() => handleAction('up')} className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                    Move Up
+                </button>
+                <button onClick={() => handleAction('down')} className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                    Move Down
+                </button>
+                <button onClick={() => handleAction('remove')} className="px-4 py-2 text-sm bg-red-500 text-white rounded-md hover:bg-red-600">
+                    Remove
+                </button>
+            </div>
         </div>
     );
 }
 
-export default EditQueuePage
+export default EditQueuePage;
