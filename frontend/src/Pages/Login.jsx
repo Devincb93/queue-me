@@ -29,7 +29,7 @@ function Login() {
                     },
                     body: JSON.stringify(values),
                 });
-                
+
                 const data = await response.json();
 
                 if (response.ok) {
@@ -47,11 +47,11 @@ function Login() {
             }
         }
     });
-    
+
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center font-sans">
             <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-                <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Employee Login</h1>
+                <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center tracking-heading-normal">Employee Login</h1>
                 <form onSubmit={formik.handleSubmit} className="space-y-6">
                     <div>
                         <label

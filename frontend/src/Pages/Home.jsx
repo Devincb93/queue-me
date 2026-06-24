@@ -4,10 +4,10 @@ import { ToastContainer } from 'react-toastify';
 
 function Home() {
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center">
-            <div className="text-center ">
-                <h1 className="text-5xl font-extrabold text-gray-800">QueueMe</h1>
-                <p className="text-gray-600 mt-2">The seamless way to manage your customers.</p>
+        <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center font-sans">
+            <div className="text-center mb-8">
+                <h1 className="text-5xl font-extrabold text-gray-800 tracking-heading-tight">QueueMe</h1>
+                <p className="text-base text-gray-600 mt-2 tracking-normal">The seamless way to manage your customers.</p>
             </div>
             <Login />
             <ToastContainer

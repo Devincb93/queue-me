@@ -62,22 +62,22 @@ function CustomerForm() {
     });
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-gray-100 font-sans">
             <header className="bg-white shadow-md">
                 <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-800">
+                    <h1 className="text-2xl font-bold text-gray-800 tracking-heading-normal">
                         Welcome, {loggedInUser?.employee_login}
                     </h1>
                     <div>
                         <button
                             onClick={() => navigate('/employee_profile')}
-                            className="mr-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                            className="mr-4 px-4 py-2 text-base bg-blue-500 text-white rounded-md hover:bg-blue-600"
                         >
                             Profile
                         </button>
                         <button
                             onClick={handleLogout}
-                            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                            className="px-4 py-2 text-base bg-red-500 text-white rounded-md hover:bg-red-600"
                         >
                             Logout
                         </button>
@@ -91,7 +91,7 @@ function CustomerForm() {
                     <div className="lg:w-1/2">
                         {/* Add Customer Form */}
                         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-                            <h2 className="text-xl font-bold text-gray-800 mb-4">Add Customer to Queue</h2>
+                            <h2 className="text-xl font-bold text-gray-800 mb-4 tracking-heading-normal">Add Customer to Queue</h2>
                             <form onSubmit={formik.handleSubmit} className="space-y-4">
                                 <div>
                                     <label htmlFor="first_last_name" className="block text-sm font-medium text-gray-700">Full Name</label>
@@ -108,7 +108,7 @@ function CustomerForm() {
                                     <input id="email" name="email" type="email" {...formik.getFieldProps('email')} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"/>
                                     {formik.touched.email && formik.errors.email ? <div className="text-red-500 text-sm">{formik.errors.email}</div> : null}
                                 </div>
-                                <button type="submit" disabled={formik.isSubmitting} className="w-full py-2 px-4 bg-green-500 text-white rounded-md hover:bg-green-600">
+                                <button type="submit" disabled={formik.isSubmitting} className="w-full py-2 px-4 text-base bg-green-500 text-white rounded-md hover:bg-green-600">
                                     {formik.isSubmitting ? 'Adding...' : 'Add to Queue'}
                                 </button>
                             </form>
@@ -129,3 +129,4 @@ function CustomerForm() {
 }
 
 export default CustomerForm;
+;

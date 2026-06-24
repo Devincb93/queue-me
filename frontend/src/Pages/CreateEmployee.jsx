@@ -29,7 +29,7 @@ function CreateEmployee() {
                     },
                     body: JSON.stringify(values),
                 });
-                
+
                 const data = await response.json();
 
                 if (response.ok) {
@@ -49,9 +49,9 @@ function CreateEmployee() {
     });
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center font-sans">
             <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-                <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Create Employee Account</h1>
+                <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center tracking-heading-normal">Create Employee Account</h1>
                 <form onSubmit={formik.handleSubmit} className="space-y-6">
                     <div>
                         <label

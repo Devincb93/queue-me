@@ -2,20 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'edikted';
-  src: url('./public/kleptocracy titling bd.otf') format('opentype');
-    
-  font-weight: normal;
-  font-style: normal;
+/* Ensure html base font size is set for rem units */
+html {
+  font-size: 100%; /* Equivalent to 16px */
 }
 
-
-body {
-  background: #f3b5d4;
-  font-family: 'edikted','Edu VIC WA NT Beginner', sans-serif
- 
-  
-}
+/* The body will now automatically use the 'sans' font family defined in tailwind.config.js (Inter) */
+/* Old font declarations are removed */
 
 
